@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -20,8 +21,12 @@ interface LinkGenerationFormData {
   expiryUnit: 'minutes' | 'hours' | 'days';
 }
 
-const VideoCard: React.FC<{ video: Video; onSelect: () => void }> = ({ video, onSelect }) => (
-  <Card className="w-[300px] cursor-pointer" onClick={onSelect}>
+const VideoCard: React.FC<{ video: Video; onSelect: () => void; isSelected: boolean }> = ({ video, onSelect, isSelected }) => (
+  <Card
+    className={`w-[300px] cursor-pointer transition-transform duration-300 ease-in-out transform-gpu ${isSelected ? 'border-[2px] shadow-lg shadow-yellow-300 border-orange-500 ' : 'hover:scale-105 hover:translate-y-[2px]'}`}
+    onClick={onSelect}
+    style={{ perspective: '1000px' }}
+  >
     <CardHeader>
       <CardTitle>{video.title}</CardTitle>
     </CardHeader>
@@ -33,6 +38,7 @@ const VideoCard: React.FC<{ video: Video; onSelect: () => void }> = ({ video, on
     </CardContent>
   </Card>
 );
+
 
 const LinkGenerationForm: React.FC<{ onSubmit: (data: LinkGenerationFormData) => void }> = ({ onSubmit }) => {
   const [formData, setFormData] = useState<LinkGenerationFormData>({
@@ -172,9 +178,14 @@ const VideoSelection: React.FC = () => {
   return (
     <div className="p-8">
       <h1 className="text-2xl font-bold mb-6">Select a Video</h1>
-      <div className="flex space-x-4">
+      <div className="flex space-x-5">
         {videos.map((video) => (
-          <VideoCard key={video.id} video={video} onSelect={() => handleVideoSelect(video)} />
+            <VideoCard
+            key={video.id}
+            video={video}
+            onSelect={() => handleVideoSelect(video)}
+            isSelected={selectedVideo?.id === video.id}
+          /> 
         ))}
       </div>
       {selectedVideo && (
