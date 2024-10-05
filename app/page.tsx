@@ -1,101 +1,221 @@
-import Image from "next/image";
+'use client'
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "@/hooks/use-toast";
 
-export default function Home() {
+interface Video {
+  id: number;
+  title: string;
+  path: string;
+}
+
+interface LinkGenerationFormData {
+  name: string;
+  email: string;
+  company: string;
+  expiryValue: string;
+  expiryUnit: 'minutes' | 'hours' | 'days';
+}
+
+const videos: Video[] = [
+  { id: 1, title: "WMS Short Video", path: "/FinalVideoWMS.mp4" },
+  { id: 2, title: "WMS Long Video", path: "/WMSVideo.mp4" },
+];
+
+const VideoCard: React.FC<{ video: Video; onSelect: () => void }> = ({ video, onSelect }) => (
+  <Card className="w-[300px] cursor-pointer" onClick={onSelect}>
+    <CardHeader>
+      <CardTitle>{video.title}</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <video width="100%" height="auto" controls>
+        <source src={video.path} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </CardContent>
+  </Card>
+);
+
+const LinkGenerationForm: React.FC<{ onSubmit: (data: LinkGenerationFormData) => void }> = ({ onSubmit }) => {
+  const [formData, setFormData] = useState<LinkGenerationFormData>({
+    name: '',
+    email: '',
+    company: '',
+    expiryValue: '',
+    expiryUnit: 'minutes',
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <Input
+        name="name"
+        placeholder="Your Name"
+        value={formData.name}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        name="email"
+        type="email"
+        placeholder="Your Email"
+        value={formData.email}
+        onChange={handleChange}
+        required
+      />
+      <Input
+        name="company"
+        placeholder="Customer/Company Name"
+        value={formData.company}
+        onChange={handleChange}
+        required
+      />
+      <div className="flex space-x-2">
+        <Input
+          name="expiryValue"
+          type="number"
+          placeholder="Set link expiry"
+          value={formData.expiryValue}
+          onChange={handleChange}
+          required
+          className="w-2/3"
         />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+        <Select
+          value={formData.expiryUnit}
+          onValueChange={(value: 'minutes' | 'hours' | 'days') => setFormData({ ...formData, expiryUnit: value })}
+        >
+          <SelectTrigger className="w-1/3">
+            <SelectValue placeholder="Unit" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="minutes">Minutes</SelectItem>
+            <SelectItem value="hours">Hours</SelectItem>
+            <SelectItem value="days">Days</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <Button type="submit" className="w-full">Generate Link</Button>
+    </form>
+  );
+};
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+const VideoSelection: React.FC = () => {
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [selectedVideo, setSelectedVideo] = useState<Video | null>(null);
+  const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchVideos = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/videos');
+        if (!response.ok) {
+          throw new Error('Failed to fetch videos');
+        }
+        const data = await response.json();
+        setVideos(data);
+      } catch (error) {
+        console.error('Error fetching videos:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch videos. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+
+    fetchVideos();
+  }, []);
+
+  const handleVideoSelect = (video: Video) => {
+    setSelectedVideo(video);
+  };
+
+  const handleLinkGeneration = async (formData: LinkGenerationFormData) => {
+    try {
+      const response = await fetch('http://localhost:3000/api/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          videoId: selectedVideo?.id,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate link');
+      }
+
+      const data = await response.json();
+      setGeneratedLink(data.link);
+      toast({
+        title: "Link generated successfully",
+        description: "You can now copy and share the link.",
+      });
+    } catch (error) {
+      console.error('Error generating link:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate link. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold mb-6">Select a Video</h1>
+      <div className="flex space-x-4">
+        {videos.map((video) => (
+          <VideoCard key={video.id} video={video} onSelect={() => handleVideoSelect(video)} />
+        ))}
+      </div>
+      {selectedVideo && (
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button className="mt-4">Generate Link</Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Generate Video Link</DialogTitle>
+            </DialogHeader>
+            <LinkGenerationForm onSubmit={handleLinkGeneration} />
+            {generatedLink && (
+              <div className="mt-4">
+                <h3 className="font-semibold">Generated Link:</h3>
+                <p className="break-all">{generatedLink}</p>
+                <Button
+                  onClick={() => {
+                    navigator.clipboard.writeText(generatedLink);
+                    toast({
+                      title: "Link copied",
+                      description: "The link has been copied to your clipboard.",
+                    });
+                  }}
+                  className="mt-2"
+                >
+                  Copy Link
+                </Button>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
-}
+};
+
+export default VideoSelection;
