@@ -24,7 +24,13 @@ const RegisterPage: React.FC = () => {
   const { toast } = useToast();
   const onSubmit = async (data: FormData) => {
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/register`, data);
+        const trimmedData = {
+            First_Name: data.First_Name.trim(),
+            Last_Name: data.Last_Name.trim(),
+            Email: data.Email.trim(),
+            Password: data.Password, 
+          };
+      const response = await axios.post(`${BACKEND_URL}/api/register`, trimmedData);
       
       console.log(response.data[0].Message);
     
